@@ -13,6 +13,8 @@ services:
     environment:
       MONGODB_USER: ${MONGODB_ROOT_USER}
       MONGODB_PASS: ${MONGODB_ROOT_PASSWORD}
+      MONGODB_HOST: db
+      MONGODB_PORT: ${MONGODB_PORT}
 
   db:
     image: mongo

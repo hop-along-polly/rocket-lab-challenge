@@ -1,8 +1,9 @@
-from typing import Any, Dict
+from typing import Any, Annotated, Dict, List
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 
+from be.db.nodes_repository import NodesRepository
 
 router = APIRouter()
 
@@ -34,21 +35,45 @@ record = {
   }
 }
 
+def get_nodes_repo():
+  return NodesRepository.create()
+
 
 @router.get('/{root_node}/{sub_node_path:path}')
-def get_sub_nodes(root_node: str, sub_node_path: str) -> JSONResponse:
-  return JSONResponse({ 'root': root_node, 'Sub Node Path': sub_node_path}, 200)
+async def get_sub_nodes(root_node: str, sub_node_path: str, nodes_repo: Annotated[dict, Depends(get_nodes_repo)]) -> JSONResponse:
+  node = await nodes_repo.get_node_by_root(root_node)
+  curr = node[root_node]
+  last_node = root_node
+  for n in sub_node_path.split('/'):
+    if n not in curr.keys():
+      return JSONResponse({ 'message': f'Subnode {n} not found.'}, 404)
+    curr = curr[n]
+    last_node = n
+
+  return JSONResponse( { last_node: curr }, 200)
 
 
 @router.get('/{root_node}')
-def get_root_node(root_node: str) -> JSONResponse:
-  return JSONResponse({ 'root': root_node }, 200)
+async def get_root_node(root_node: str, nodes_repo: Annotated[dict, Depends(get_nodes_repo)]) -> JSONResponse:
+  print('Controller Nodes Repo:', nodes_repo)
+  print('Type', type(nodes_repo))
+  node = await nodes_repo.get_node_by_root(root_node)
+  print('Node', node)
+  if not node:
+    return JSONResponse({ 'message': f'Unable to find a node with root "{root_node}"'}, 404)
+
+  return JSONResponse(node, 200)
 
 
 @router.post('/{root_node}/{sub_node_path:path}')
-def create_sub_node(root_node: str, sub_node_path: str, body: Dict[str,Any]=None) -> JSONResponse:
-  return JSONResponse({
-    'root': root_node,
-    'sub node path': sub_node_path,
-    'body': body
-  }, 201)
+async def create_sub_node(
+  root_node: str,
+  sub_node_path: str,
+  nodes_repo: Annotated[dict, Depends(get_nodes_repo)],
+  body: Dict[str,Any]=None
+) -> JSONResponse:
+  node = await nodes_repo.get_node_by_root(root_node)
+  if not node:
+    return JSONResponse({ 'message': f'Unable to find a node with root "{root_node}"'}, 404)
+  
+  return JSONResponse({ 'root': root_node, 'sub_nodes': sub_node_path, 'body': body }, 201)

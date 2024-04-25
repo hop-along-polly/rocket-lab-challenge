@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter
+
 from be.controllers.health import router as health_router
 from be.controllers.nodes import router as node_router
 

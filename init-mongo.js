@@ -1,5 +1,13 @@
 db = db.getSiblingDB('rocket-lab')
 db.createCollection('nodes')
+// TODO I can probably remove this since I can use the exists query.
+// I kinda like it though b/c I could add a unique index to this and ensure
+// the nodes collection then won't have many nodes with the same root node.
+db.getCollection('root_nodes').insertMany([
+  {
+    "name": "Rocket"
+  }
+])
 db.getCollection('nodes').insertMany([
   {
     "Rocket": {

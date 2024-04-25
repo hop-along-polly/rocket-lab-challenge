@@ -34,10 +34,11 @@ What were the key challenges faced when implementing this solution
 
 ## Caveats and Downfalls
 What are the engineering trade offs for this approach?
+ - given the data structure we could never have 2 nodes with the parents node of "Rocket" :sad_panda:
 
 ## Production Changes
 What changes would be made for a production environment
  - packages are pinned to a specific version. In prod I would allow for some automatic upgrades of packages.
  - I would not name the folder for the backend code `be`. Something like `rocket-nodes` would be better.
  - I would not be using the root user credentials as the user/password for the application
- - 
+ - I would include logging lib instead of print statements.
