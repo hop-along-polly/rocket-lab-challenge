@@ -8,10 +8,9 @@ VENV_PIP ?= .venv/bin/pip
 	${PYTHON_CMD} -m venv .venv
 	${VENV_PIP} install -r requirements.txt
 
-# TODO run all tests not just models
 tests: .venv requirements-dev.txt
 	${VENV_PIP} install -r requirements-dev.txt
-	${VENV_PYTHON} -m pytest tests/test_models.py -s
+	${VENV_PYTHON} -m pytest tests -s
 
 clean:
 	rm -rf .venv

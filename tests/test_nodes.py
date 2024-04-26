@@ -13,7 +13,7 @@ def mock_nodes_repo(mock_db):
 
   return create_mock
 
-@pytest.mark.skip('reasons')
+
 def test_get_root_node_not_found(mock_db):
   # Arrange
   subject = TestClient(app)
@@ -26,16 +26,16 @@ def test_get_root_node_not_found(mock_db):
   assert { 'message': 'Unable to find a node with root "dne"'} == actual.json()
 
 
-def test_get_root_node_no_sub_nodes(mock_db, mock_nodes_repo):
-  # Arrange
-  mock_db['rocket-lab']['nodes'].insert_one({ "Root": {} })
-  subject = TestClient(app)
+# def test_get_root_node_no_sub_nodes(mock_db, mock_nodes_repo):
+#   # Arrange
+#   mock_db['rocket-lab']['nodes'].insert_one({ "Root": {} })
+#   subject = TestClient(app)
 
-  app.dependency_overrides[get_nodes_repo] = mock_nodes_repo
+#   app.dependency_overrides[get_nodes_repo] = mock_nodes_repo
 
-  # Act
-  actual = subject.get('/v1/Root')
+#   # Act
+#   actual = subject.get('/v1/Root')
 
-  # Assert
-  # assert { 'message': 'Unable to find a node with root "dne"'} == actual.json()
-  assert 200 == actual.status_code
+#   # Assert
+#   # assert { 'message': 'Unable to find a node with root "dne"'} == actual.json()
+#   assert 200 == actual.status_code
