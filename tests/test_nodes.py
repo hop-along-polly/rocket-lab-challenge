@@ -9,33 +9,52 @@ from be.db.nodes_repository import NodesRepository
 @pytest.fixture
 def mock_nodes_repo(mock_db):
   def create_mock():
-    return NodesRepository(mock_db)
+    repo = NodesRepository(mock_db)
+    return repo
 
   return create_mock
 
 
-def test_get_root_node_not_found(mock_db):
+@pytest.mark.asyncio
+@pytest.mark.parametrize('record,path,expected', [
+  (None, '/v1/dne', { 'status_code': 404, 'body': {'message': 'Unable to find a node with root "dne"'} }),
+  ({ 'Root': {} }, '/v1/Root', { 'status_code': 200, 'body': { 'Root': {} } }),
+  ({ 'Root': { 'Sub': {} }}, '/v1/Root', { 'status_code': 200, 'body': { 'Root': { 'Sub': {} } } }),
+  ({ 'Root': { 'Sub': { 'Prop1': 3.14 } }}, '/v1/Root', { 'status_code': 200, 'body': { 'Root': { 'Sub': { 'Prop1': 3.14 } } } })
+])
+async def test_get_root_node(mock_db, mock_nodes_repo, record, path, expected):
   # Arrange
+  if record:
+    await mock_db['rocket-lab']['nodes'].insert_one(record)
+
   subject = TestClient(app)
+  app.dependency_overrides[get_nodes_repo] = mock_nodes_repo
 
   # Act
-  actual = subject.get('/v1/dne')
+  actual = subject.get(path)
 
   # Assert
-  assert 404 == actual.status_code
-  assert { 'message': 'Unable to find a node with root "dne"'} == actual.json()
+  assert expected['status_code'] == actual.status_code
+  assert expected['body'] == actual.json()
 
 
-# def test_get_root_node_no_sub_nodes(mock_db, mock_nodes_repo):
-#   # Arrange
-#   mock_db['rocket-lab']['nodes'].insert_one({ "Root": {} })
-#   subject = TestClient(app)
+@pytest.mark.asyncio
+@pytest.mark.parametrize('record,path,body,expected', [
+  (None, '/v1/dne/sub-dne', None, { 'status_code': 404, 'body': { 'message': 'Unable to find a node with root "dne"' }}),
+  ({'Root': {}}, '/v1/Root/Sub', None, { 'status_code': 200, 'body': { 'Root': { 'Sub': {} } }}),
+  ({'Root': {}}, '/v1/Root/Sub', { 'prop1': 3.14 }, { 'status_code': 200, 'body': { 'Root': { 'Sub': { 'prop1': 3.14 } } }})
+])
+async def test_create_sub_node(mock_db, mock_nodes_repo, record, path, body, expected):
+# Arrange
+  if record:
+    await mock_db['rocket-lab']['nodes'].insert_one(record)
 
-#   app.dependency_overrides[get_nodes_repo] = mock_nodes_repo
+  subject = TestClient(app)
+  app.dependency_overrides[get_nodes_repo] = mock_nodes_repo
 
-#   # Act
-#   actual = subject.get('/v1/Root')
+  # Act
+  actual = subject.post(path, json=body)
 
-#   # Assert
-#   # assert { 'message': 'Unable to find a node with root "dne"'} == actual.json()
-#   assert 200 == actual.status_code
+  # Assert
+  assert expected['status_code'] == actual.status_code
+  assert expected['body'] == actual.json()

@@ -41,6 +41,10 @@ async def create_sub_node(
   nodes_repo: Annotated[dict, Depends(get_nodes_repo)],
   body: Dict[str,Any]=None
 ) -> JSONResponse:
+  existing = await nodes_repo.get_node(root_node, [])
+  if not existing:
+    return JSONResponse({ 'message': f'Unable to find a node with root "{root_node}"'}, 404)
+
   result = await nodes_repo.add_node_at_path(root_node, sub_node_path.strip('/').split('/'), body)
   if not result:
     return JSONResponse({ 'message': f'Unable to update {root_node}'}, 500)

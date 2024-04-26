@@ -28,7 +28,7 @@ class NodesRepository:
       return None
 
   async def add_node_at_path(self, root: str, new_node_path: List[str], body=None):
-    existing = await self.get_node(root, new_node_path)
+    existing = await self.get_node(root, [])
     if not existing:
       return None
 

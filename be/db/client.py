@@ -15,7 +15,6 @@ class DbClient:
     return cls(AsyncIOMotorClient(cfg.mongodb_uri))
 
   def get_collection(self, collection_name: str):
-    # TODO Probably want some error handling for trying to get a db that doesn't exist
     return self._client['rocket-lab'][collection_name]
 
   async def health(self):
