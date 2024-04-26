@@ -12,6 +12,9 @@ tests: .venv requirements-dev.txt
 	${VENV_PIP} install -r requirements-dev.txt
 	${VENV_PYTHON} -m pytest tests -s
 
+run: .venv
+	.venv/bin/uvicorn be.app:app --reload
+
 clean:
 	rm -rf .venv
 	docker-compose down && docker volume rm rocket-labs-challenge_dbdata
