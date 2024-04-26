@@ -1,13 +1,5 @@
 # Rocket Lab Coding Challenge
 
-# TODO
-  - Get tests running without docker-compose
-  - API Docs
-  - Code coverage
-  - linting
-  - mypy?
-  - Frontend?
-
 ## Table of Contents
 
   - [Getting Started](#getting-started)
