@@ -1,7 +1,6 @@
 # Rocket Lab Coding Challenge
 
 # TODO
-  - Finish README write up
   - Get tests running without docker-compose
   - API Docs
   - Code coverage
