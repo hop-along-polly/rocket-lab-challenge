@@ -15,6 +15,10 @@ tests: .venv requirements-dev.txt
 run: .venv
 	.venv/bin/uvicorn be.app:app --reload
 
+tar:
+	tar -czvf challenge.tar.gz be tests .env.example docker-compose.yml Dockerfile init-mongo.js Makefile README.md requirements-dev.txt requirements.txt
+
 clean:
 	rm -rf .venv
+	rm -rf challenge.tar.gz
 	docker-compose down && docker volume rm rocket-labs-challenge_dbdata
