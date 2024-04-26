@@ -20,9 +20,13 @@ def mock_nodes_repo(mock_db):
   (None, '/v1/dne', { 'status_code': 404, 'body': {'message': 'Unable to find a node with root "dne"'} }),
   ({ 'Root': {} }, '/v1/Root', { 'status_code': 200, 'body': { 'Root': {} } }),
   ({ 'Root': { 'Sub': {} }}, '/v1/Root', { 'status_code': 200, 'body': { 'Root': { 'Sub': {} } } }),
-  ({ 'Root': { 'Sub': { 'Prop1': 3.14 } }}, '/v1/Root', { 'status_code': 200, 'body': { 'Root': { 'Sub': { 'Prop1': 3.14 } } } })
+  ({ 'Root': { 'Sub': { 'Prop1': 3.14 } }}, '/v1/Root', { 'status_code': 200, 'body': { 'Root': { 'Sub': { 'Prop1': 3.14 } } } }), 
+  # Start of Tests for sub-nodes
+  ({ 'Root': { 'Sub': {} }}, '/v1/Root/DNE', { 'status_code': 404, 'body': { 'message': 'Subnode "DNE" not found' }}),
+  ({ 'Root': { 'Sub': {} }}, '/v1/Root/Sub', { 'status_code': 200, 'body': { 'Sub': { } }}),
+  ({ 'Root': { 'Sub': { 'prop1': 3.14 } }}, '/v1/Root/Sub', { 'status_code': 200, 'body': { 'Sub': { 'prop1': 3.14 } }})
 ])
-async def test_get_root_node(mock_db, mock_nodes_repo, record, path, expected):
+async def test_get_node(mock_db, mock_nodes_repo, record, path, expected):
   # Arrange
   if record:
     await mock_db['rocket-lab']['nodes'].insert_one(record)

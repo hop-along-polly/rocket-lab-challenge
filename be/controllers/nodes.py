@@ -14,11 +14,12 @@ def get_nodes_repo():
 @router.get('/{root_node}/{sub_node_path:path}')
 async def get_sub_nodes(root_node: str, sub_node_path: str, nodes_repo: Annotated[dict, Depends(get_nodes_repo)]) -> JSONResponse:
   node = await nodes_repo.get_node(root_node, sub_node_path.split('/'))
+  if not node:
+    return JSONResponse({ 'message': f'Subnode "{sub_node_path}" not found' }, 404)
+
   curr = node[root_node]
   last_node = root_node
   for n in sub_node_path.split('/'):
-    if n not in curr.keys():
-      return JSONResponse({ 'message': f'Subnode {n} not found.'}, 404)
     curr = curr[n]
     last_node = n
 
